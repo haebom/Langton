@@ -3,6 +3,8 @@ const canvas = document.getElementById('antCanvas');
 const ctx = canvas.getContext('2d');
 const playBtn = document.getElementById('playPause');
 const speedDisplay = document.getElementById('speedDisplay');
+const speedControl = document.getElementById('speedControl');
+const ANT_EMOJI = '\uD83D\uDC1C';
 
 // 그리드 설정
 const CELL = 5;
@@ -30,10 +32,17 @@ function drawCell(r, c) {
   ctx.fillStyle = grid[r][c] ? '#000' : '#fff';
   ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
 }
+function drawAnt(r, c) {
+  drawCell(r, c);
+  ctx.font = CELL + 'px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(ANT_EMOJI, c * CELL + CELL / 2, r * CELL + CELL / 2);
+}
 
 // 한 스텝 실행
 function step() {
-  // 1) 현재 칸 색 뒤집기
+  // 1) 현재 칸 색 뒤집기 및 이전 위치 갱신
   grid[y][x] ^= 1;
   drawCell(y, x);
 
@@ -57,12 +66,13 @@ function step() {
   else if (dir === 1)  x = (x + 1) % COLS;
   else if (dir === 2)  y = (y + 1) % ROWS;
   else /* dir===3 */   x = (x - 1 + COLS) % COLS;
-
+  drawAnt(y, x);
   stepCount++;
 
   // 5) 가속 로직: 1,000스텝마다 속도 ×2 (최대 100×)
   if (stepCount % 1000 === 0 && speed < 100) {
     speed *= 2;
+    speedControl.value = speed;
     updateInterval();
   }
 }
@@ -74,6 +84,7 @@ function updateInterval() {
   const delay = 1000 / (speed * 10);
   intervalId = setInterval(step, delay);
   speedDisplay.textContent = speed + '×';
+  speedControl.value = speed;
 }
 
 // 시작·정지 토글
@@ -95,6 +106,11 @@ function stopSimulation() {
 playBtn.addEventListener('click', () => {
   running ? stopSimulation() : startSimulation();
 });
+speedControl.addEventListener('input', () => {
+  speed = parseInt(speedControl.value, 10);
+  if (running) updateInterval();
+  else speedDisplay.textContent = speed + '×';
+});
 
 // 초기 캔버스 렌더
 for (let r = 0; r < ROWS; r++) {
@@ -102,3 +118,4 @@ for (let r = 0; r < ROWS; r++) {
     drawCell(r, c);
   }
 }
+drawAnt(y, x);
