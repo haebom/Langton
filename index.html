@@ -10,7 +10,9 @@
   <canvas id="antCanvas" width="800" height="800"></canvas>
   <div class="controls">
     <button id="playPause">Play</button>
-    <span>Speed: <span id="speedDisplay">1×</span></span>
+    <label for="speedControl">Speed:</label>
+    <input type="range" id="speedControl" min="1" max="100" value="1">
+    <span id="speedDisplay">1×</span>
   </div>
   <script src="langtons-ant.js"></script>
 </body>
